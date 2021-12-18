@@ -28,6 +28,10 @@ public class ElevatorStatus {
         this.destinationFloor = destinationFloor;
     }
 
+    public void movedOneFloor(Direction direction) {
+        currentFloor += direction.intValue();
+    }
+
     @Override
     public String toString() {
         String destinationFloorString =
