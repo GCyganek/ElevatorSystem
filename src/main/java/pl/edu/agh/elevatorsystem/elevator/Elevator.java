@@ -52,18 +52,29 @@ public class Elevator {
     }
 
     public void updateStatus(int currentFloor, int destinationFloor) {
+        if (currentFloor >= MAX_FLOORS || destinationFloor >= MAX_FLOORS || currentFloor < 0 || destinationFloor < 0) {
+            System.out.println("Invalid update request: currentFloor and destinationFloor must be in range [0, MAX_FLOOR - 1]");
+            return;
+        }
+
         if (!pickupRequests.isEmpty()) {
             System.out.println("Can't update the elevator that is currently occupied!");
             return;
         }
 
         elevatorStatus.setCurrentFloor(currentFloor);
-        elevatorStatus.setDestinationFloor(destinationFloor);
-        direction = evaluateCurrentDirection();
-        pickupRequests.add(new PickupRequest(currentFloor, direction, destinationFloor, true));
+
+        if (currentFloor != destinationFloor) {
+            elevatorStatus.setDestinationFloor(destinationFloor);
+            direction = evaluateCurrentDirection();
+            pickupRequests.add(new PickupRequest(currentFloor, direction, destinationFloor, true));
+        }
     }
 
     private Direction evaluateCurrentDirection() {
+        if (elevatorStatus.getDestinationFloor() == IDLE) {
+            return Direction.IDLE;
+        }
         return Direction.of(elevatorStatus.getDestinationFloor() - elevatorStatus.getCurrentFloor());
     }
 
@@ -72,6 +83,11 @@ public class Elevator {
     }
 
     public void handlePickupRequest(PickupRequest pickupRequest) {
+        if (!pickupRequest.validateRequestFloors(0, MAX_FLOORS - 1) || !pickupRequest.validateRequestDirection()) {
+            System.out.println("Invalid pickup request");
+            return;
+        }
+
         pickupRequests.add(pickupRequest);
 
         if (pickupRequest.getCurrentFloor() == elevatorStatus.getCurrentFloor()) {
@@ -114,14 +130,28 @@ public class Elevator {
         }
 
         if (direction.equals(Direction.UP)) {
+            if (!requestsInGivenDirection(Direction.UP)) {
+                int destinationFloor = pickupRequests.stream()
+                        .filter(pickupRequest -> !pickupRequest.isInElevator()
+                                && pickupRequest.getDirection().equals(Direction.DOWN))
+                        .map(PickupRequest::getCurrentFloor)
+                        .max(Integer::compare)
+                        .orElse(-1);
+
+                elevatorStatus.setDestinationFloor(destinationFloor);
+                return;
+            }
+
             int destinationFloorCandidate1 = pickupRequests.stream()
-                    .filter(PickupRequest::isInElevator)
+                    .filter(pickupRequest -> pickupRequest.isInElevator()
+                            && pickupRequest.getDirection().equals(Direction.UP))
                     .map(PickupRequest::getDestinationFloor)
                     .max(Integer::compare)
                     .orElse(-1);
 
             int destinationFloorCandidate2 = pickupRequests.stream()
-                    .filter(pickupRequest -> !pickupRequest.isInElevator())
+                    .filter(pickupRequest -> !pickupRequest.isInElevator()
+                            && pickupRequest.getDirection().equals(Direction.UP))
                     .map(PickupRequest::getCurrentFloor)
                     .max(Integer::compare)
                     .orElse(-1);
@@ -130,14 +160,28 @@ public class Elevator {
 
             elevatorStatus.setDestinationFloor(destinationFloor);
         } else {
+            if (!requestsInGivenDirection(Direction.DOWN)) {
+                int destinationFloor = pickupRequests.stream()
+                        .filter(pickupRequest -> !pickupRequest.isInElevator()
+                                && pickupRequest.getDirection().equals(Direction.UP))
+                        .map(PickupRequest::getCurrentFloor)
+                        .min(Integer::compare)
+                        .orElse(MAX_FLOORS + 1);
+
+                elevatorStatus.setDestinationFloor(destinationFloor);
+                return;
+            }
+
             int destinationFloorCandidate1 = pickupRequests.stream()
-                    .filter(PickupRequest::isInElevator)
+                    .filter(pickupRequest -> pickupRequest.isInElevator()
+                            && pickupRequest.getDirection().equals(Direction.DOWN))
                     .map(PickupRequest::getDestinationFloor)
                     .min(Integer::compare)
                     .orElse(MAX_FLOORS + 1);
 
             int destinationFloorCandidate2 = pickupRequests.stream()
-                    .filter(pickupRequest -> !pickupRequest.isInElevator())
+                    .filter(pickupRequest -> !pickupRequest.isInElevator()
+                            && pickupRequest.getDirection().equals(Direction.DOWN))
                     .map(PickupRequest::getCurrentFloor)
                     .min(Integer::compare)
                     .orElse(MAX_FLOORS + 1);
@@ -148,11 +192,22 @@ public class Elevator {
         }
     }
 
+    private boolean requestsInGivenDirection(Direction direction) {
+        return pickupRequests
+                .stream()
+                .anyMatch(pickupRequest ->
+                        pickupRequest.getDirection().equals(direction));
+    }
+
     public ElevatorStatus getElevatorStatus() {
         return elevatorStatus;
     }
 
     public Direction getDirection() {
         return direction;
+    }
+
+    public List<PickupRequest> getPickupRequests() {
+        return pickupRequests;
     }
 }
