@@ -1,5 +1,8 @@
 package pl.edu.agh.elevatorsystem.util;
 
+/**
+ * Contains constants available for all classes
+ */
 public final class Constants {
 
     private Constants() { }

@@ -7,6 +7,9 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Runs the simulation of the elevator system with I/O operations on the CLI
+ */
 public class ElevatorSystemApp {
 
     public static Pattern PICKUP_PATTERN =
@@ -21,8 +24,8 @@ public class ElevatorSystemApp {
         System.out.println("Elevator system simulation");
         System.out.println("Enter number of elevators [1 - 16]: ");
 
-        int numberofElevators = Integer.parseInt(scanner.nextLine());
-        IElevatorSystem IElevatorSystem = new MyElevatorSystem(numberofElevators);
+        int numberOfElevators = Integer.parseInt(scanner.nextLine());
+        IElevatorSystem IElevatorSystem = new MyElevatorSystem(numberOfElevators);
 
         printHelp();
 
@@ -60,7 +63,12 @@ public class ElevatorSystemApp {
         System.out.println(help);
     }
 
-    public static void pickupElevatorIfInputValid(String inputLine, IElevatorSystem IElevatorSystem) {
+    /**
+     * Validates the pickup request and performs it if it's correct
+     * @param inputLine      - input line from the user where the first word is "pickup"
+     * @param elevatorSystem - elevatorSystem to handle the pickup request if the pickup request is correct
+     */
+    public static void pickupElevatorIfInputValid(String inputLine, IElevatorSystem elevatorSystem) {
         Matcher matcher = PICKUP_PATTERN.matcher(inputLine);
 
         if (matcher.find()) {
@@ -68,13 +76,18 @@ public class ElevatorSystemApp {
             int direction = Integer.parseInt(matcher.group(3));
             int destinationFloor = Integer.parseInt(matcher.group(4));
 
-            IElevatorSystem.pickup(currentFloor, direction, destinationFloor);
+            elevatorSystem.pickup(currentFloor, direction, destinationFloor);
         } else {
             System.out.println("Invalid input");
         }
     }
 
-    public static void updateElevatorIfInputValid(String inputLine, IElevatorSystem IElevatorSystem) {
+    /**
+     * Validates the update request and performs it if it's correct
+     * @param inputLine       - input line from the user where the first word is "update"
+     * @param elevatorSystem  - elevatorSystem to be updated if the update request is correct
+     */
+    public static void updateElevatorIfInputValid(String inputLine, IElevatorSystem elevatorSystem) {
         Matcher matcher = UPDATE_PATTERN.matcher(inputLine);
 
         if (matcher.find()) {
@@ -82,7 +95,7 @@ public class ElevatorSystemApp {
             int currentFloor = Integer.parseInt(matcher.group(3));
             int destinationFloor = Integer.parseInt(matcher.group(4));
 
-            IElevatorSystem.update(elevatorId, currentFloor, destinationFloor);
+            elevatorSystem.update(elevatorId, currentFloor, destinationFloor);
         } else {
             System.out.println("Invalid input");
         }

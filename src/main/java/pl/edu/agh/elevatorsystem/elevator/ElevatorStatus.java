@@ -1,11 +1,19 @@
 package pl.edu.agh.elevatorsystem.elevator;
 
+/**
+ * Represents the status of the elevator
+ */
 public class ElevatorStatus {
 
     private final int elevatorId;
     private int currentFloor;
     private int destinationFloor;
 
+    /**
+     * @param elevatorId        - elevatorId assigned to the elevator
+     * @param currentFloor      - floor that the elevator is now on
+     * @param destinationFloor  - floor that the elevator is moving to (-1 == the elevator is not moving)
+     */
     public ElevatorStatus(int elevatorId, int currentFloor, int destinationFloor) {
         this.elevatorId = elevatorId;
         this.currentFloor = currentFloor;
@@ -28,10 +36,17 @@ public class ElevatorStatus {
         this.destinationFloor = destinationFloor;
     }
 
+    /**
+     * Updates currentFloor field after elevator move
+     * @param direction - direction in which the elevator moved
+     */
     public void movedOneFloor(Direction direction) {
         currentFloor += direction.intValue();
     }
 
+    /**
+     * @return status of the elevator as a String
+     */
     @Override
     public String toString() {
         String destinationFloorString =
