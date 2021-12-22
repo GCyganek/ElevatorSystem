@@ -31,13 +31,13 @@ Simulation commands
 - `update (elevatorId) (currentFloor) (destinationFloor)` - immediately updates status of the elevator with the chosen elevatorId 
   
 
-- `step` -> performs one step of the simulation
+- `step` - performs one step of the simulation
               
   
-- `status` -> shows list of elevators with their status
+- `status` - shows list of elevators with their status
            
      
-- `quit` -> ends the simulation
+- `quit` - ends the simulation
 
 
 Elevator system implementation
