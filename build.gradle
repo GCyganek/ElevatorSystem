@@ -1,5 +1,10 @@
 plugins {
     id 'java'
+    id 'application'
+}
+
+application {
+    mainClass.set('pl.edu.agh.elevatorsystem.ElevatorSystemApp')
 }
 
 java {
@@ -7,12 +12,13 @@ java {
     targetCompatibility = JavaVersion.VERSION_16
 }
 
+run {
+    standardInput = System.in
+}
+
 group 'pl.edu.agh.elevatorsystem'
 version '1.0-SNAPSHOT'
 
-repositories {
-    mavenCentral()
-}
 
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
@@ -21,4 +27,11 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+repositories {
+    mavenCentral()
 }
