@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static pl.edu.agh.elevatorsystem.util.Constants.*;
-import static pl.edu.agh.elevatorsystem.util.Constants.MAX_FLOORS;
 
 /**
  * Implementation of the IElevatorSystem interface
@@ -40,12 +39,12 @@ public class MyElevatorSystem implements IElevatorSystem {
     }
 
     private void assignNumberOfElevators(int numberOfElevators) {
-        if (numberOfElevators < MIN_ELEVATORS) {
-            System.out.println("This system is for 16 elevators maximum. Creating 16 elevators...");
-            numberOfElevators = MIN_ELEVATORS;
-        } else if (numberOfElevators > MAX_ELEVATORS) {
-            System.out.println("Minimum 1 elevator must be created for this system. Creating 1 elevator...");
+        if (numberOfElevators > MAX_ELEVATORS) {
+            System.out.println("This system is for 16 elevators maximum. Creating 16 elevators...\n");
             numberOfElevators = MAX_ELEVATORS;
+        } else if (numberOfElevators < MIN_ELEVATORS) {
+            System.out.println("Minimum 1 elevator must be created for this system. Creating 1 elevator...\n");
+            numberOfElevators = MIN_ELEVATORS;
         }
 
         this.numberOfElevators = numberOfElevators;
@@ -276,8 +275,8 @@ public class MyElevatorSystem implements IElevatorSystem {
      *      that are not yet being handled (isInElevator == false) and have direction == UP. Then set the destinationFloor
      *      of the elevator to the maximum of these values.
      *
-     *      2. If no requests in the UP direction -> set the destinationFloor of the elevator to the maximum of
-     *      currentFloor from all pickup requests that are not yet being handled and have direction == DOWN
+     *      2. If no requests in the UP direction -> set the destinationFloor of the elevator to the currentFloor
+     *      of the pickup request in the pickupRequests list (must be only one and with direction == DOWN)
      *
      * If elevator's moving down ->
      *
@@ -286,8 +285,8 @@ public class MyElevatorSystem implements IElevatorSystem {
      *      that are not yet being handled (isInElevator == false) and have direction == DOWN. Then set the destinationFloor
      *      of the elevator to the minimum of these values.
      *
-     *      2. If no requests in the DOWN direction -> set the destinationFloor of the elevator to the minimum of
-     *      currentFloor from all pickup requests that are not yet being handled and have direction == UP
+     *      2. If no requests in the DOWN direction -> set the destinationFloor of the elevator to the currentFloor
+     *      of the pickup request in the pickupRequests list (must be only one and with direction == UP)
      *
      * @param elevator - elevator to be updated
      */
@@ -303,15 +302,10 @@ public class MyElevatorSystem implements IElevatorSystem {
         Direction elevatorDirection = elevator.getDirection();
 
         if (elevatorDirection.equals(Direction.UP)) {
-            if (!requestsInGivenDirection(Direction.UP, pickupRequests)) {
-                int destinationFloor = pickupRequests.stream()
-                        .filter(pickupRequest -> !pickupRequest.isInElevator()
-                                && pickupRequest.getDirection().equals(Direction.DOWN))
-                        .map(PickupRequest::getCurrentFloor)
-                        .max(Integer::compare)
-                        .orElse(-1);
-
-                elevatorStatus.setDestinationFloor(destinationFloor);
+            if (noRequestsInGivenDirection(Direction.UP, pickupRequests)) {
+                elevatorStatus.setDestinationFloor(
+                        pickupRequests.get(0).getCurrentFloor()
+                );
                 return;
             }
 
@@ -333,15 +327,10 @@ public class MyElevatorSystem implements IElevatorSystem {
 
             elevatorStatus.setDestinationFloor(destinationFloor);
         } else {
-            if (!requestsInGivenDirection(Direction.DOWN, pickupRequests)) {
-                int destinationFloor = pickupRequests.stream()
-                        .filter(pickupRequest -> !pickupRequest.isInElevator()
-                                && pickupRequest.getDirection().equals(Direction.UP))
-                        .map(PickupRequest::getCurrentFloor)
-                        .min(Integer::compare)
-                        .orElse(MAX_FLOORS + 1);
-
-                elevatorStatus.setDestinationFloor(destinationFloor);
+            if (noRequestsInGivenDirection(Direction.DOWN, pickupRequests)) {
+                elevatorStatus.setDestinationFloor(
+                        pickupRequests.get(0).getCurrentFloor()
+                );
                 return;
             }
 
@@ -369,10 +358,10 @@ public class MyElevatorSystem implements IElevatorSystem {
      * @param direction - given direction
      * @return true if the given direction equals any of the pickup requests direction. Returns false otherwise
      */
-    private boolean requestsInGivenDirection(Direction direction, List<PickupRequest> pickupRequests) {
+    private boolean noRequestsInGivenDirection(Direction direction, List<PickupRequest> pickupRequests) {
         return pickupRequests
                 .stream()
-                .anyMatch(pickupRequest -> pickupRequest.getDirection().equals(direction));
+                .noneMatch(pickupRequest -> pickupRequest.getDirection().equals(direction));
     }
 
     private boolean sameSign(int x, int y) {

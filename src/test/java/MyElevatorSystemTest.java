@@ -13,6 +13,27 @@ public class MyElevatorSystemTest {
     private final MyElevatorSystem systemWith3Elevators = new MyElevatorSystem(3);
     private final MyElevatorSystem systemWith1Elevator = new MyElevatorSystem(1);
 
+    private final PickupRequest pickupRequestFrom2To3 = new PickupRequest(2, Direction.UP, 3);
+    private final PickupRequest pickupRequestFrom3To1 = new PickupRequest(3, Direction.DOWN, 1);
+    private final PickupRequest pickupRequestFrom2To1 = new PickupRequest(2, Direction.DOWN, 1);
+    private final PickupRequest pickupRequestFrom4To5 = new PickupRequest(4, Direction.UP, 5);
+
+    private final PickupRequest pickupRequestFrom2To3InElevator =
+            new PickupRequest(2, Direction.UP, 3, true);
+
+    private final PickupRequest pickupRequestFrom3To1InElevator =
+            new PickupRequest(3, Direction.DOWN, 1, true);
+
+    private final PickupRequest pickupRequestFrom2To1InElevator =
+            new PickupRequest(2, Direction.DOWN, 1, true);
+
+    private final PickupRequest pickupRequestFrom1To5InElevator =
+            new PickupRequest(1, Direction.UP, 5, true);
+
+    private final PickupRequest pickupRequestFrom4To5InElevator =
+            new PickupRequest(4, Direction.UP, 5, true);
+
+
     @Test
     public void updateElevatorsAndMakeStepTest() {
         Elevator elevator0 = systemWith3Elevators.getElevatorById(0);
@@ -86,23 +107,6 @@ public class MyElevatorSystemTest {
         validateElevatorStatus(elevator1, 4, 9, Direction.UP);
         validateElevatorStatus(elevator2, 15, 9, Direction.DOWN);
     }
-
-    private final PickupRequest pickupRequestFrom2To3 = new PickupRequest(2, Direction.UP, 3);
-    private final PickupRequest pickupRequestFrom3To1 = new PickupRequest(3, Direction.DOWN, 1);
-    private final PickupRequest pickupRequestFrom2To1 = new PickupRequest(2, Direction.DOWN, 1);
-    private final PickupRequest pickupRequestFrom1To5 = new PickupRequest(1, Direction.UP, 5);
-
-    private final PickupRequest pickupRequestFrom2To3InElevator =
-            new PickupRequest(2, Direction.UP, 3, true);
-
-    private final PickupRequest pickupRequestFrom3To1InElevator =
-            new PickupRequest(3, Direction.DOWN, 1, true);
-
-    private final PickupRequest pickupRequestFrom2To1InElevator =
-            new PickupRequest(2, Direction.DOWN, 1, true);
-
-    private final PickupRequest pickupRequestFrom1To5InElevator =
-            new PickupRequest(1, Direction.UP, 5, true);
 
     @Test
     public void pickupRequestFrom2ndTo3rdFloorTest() {
@@ -292,6 +296,58 @@ public class MyElevatorSystemTest {
         for (int steps = 0; steps < 2; steps++) {
             systemWith1Elevator.step();
         }
+
+        validateElevatorStatus(elevator, 5, Elevator.IDLE, Direction.IDLE);
+
+        assertTrue(elevator.getPickupRequests().isEmpty());
+    }
+
+    @Test
+    public void pickupRequestsFrom3rdTo1stFloorThenFrom4thTo5thFloorTest() {
+        Elevator elevator = systemWith1Elevator.getElevatorById(0);
+        systemWith1Elevator.pickup(3, -1, 1);
+        systemWith1Elevator.pickup(4, 1, 5);
+
+        List<PickupRequest> pickupRequests = elevator.getPickupRequests();
+        assertEquals(1, pickupRequests.size());
+
+        PickupRequest pickupRequest = pickupRequests.get(0);
+        assertEquals(pickupRequestFrom3To1, pickupRequest);
+        assertFalse(pickupRequest.isInElevator());
+
+        validateElevatorStatus(elevator, 0, 3, Direction.UP);
+
+        for (int steps = 0; steps < 3; steps++) {
+            systemWith1Elevator.step();
+        }
+
+        validateElevatorStatus(elevator, 3, 1, Direction.DOWN);
+
+        assertEquals(pickupRequestFrom3To1InElevator, pickupRequest);
+        assertTrue(pickupRequest.isInElevator());
+
+        for (int steps = 0; steps < 2; steps++) {
+            systemWith1Elevator.step();
+        }
+
+        validateElevatorStatus(elevator, 1, 4, Direction.UP);
+
+        assertEquals(1, pickupRequests.size());
+
+        pickupRequest = pickupRequests.get(0);
+        assertEquals(pickupRequestFrom4To5, pickupRequest);
+        assertFalse(pickupRequest.isInElevator());
+
+        for (int steps = 0; steps < 3; steps++) {
+            systemWith1Elevator.step();
+        }
+
+        validateElevatorStatus(elevator, 4, 5, Direction.UP);
+
+        assertEquals(pickupRequestFrom4To5InElevator, pickupRequest);
+        assertTrue(pickupRequest.isInElevator());
+
+        systemWith1Elevator.step();
 
         validateElevatorStatus(elevator, 5, Elevator.IDLE, Direction.IDLE);
 

@@ -12,10 +12,10 @@ import java.util.regex.Pattern;
  */
 public class ElevatorSystemApp {
 
-    public static Pattern PICKUP_PATTERN =
+    public static final Pattern PICKUP_PATTERN =
             Pattern.compile("(pickup)\\s+([0]|[1-9]+[0-9]*)\\s+([-]?[1-9]+[0-9]*)\\s+([0]|[1-9]+[0-9]*)");
 
-    public static Pattern UPDATE_PATTERN =
+    public static final Pattern UPDATE_PATTERN =
             Pattern.compile("(update)\\s+([1][0-6]|[0-9])\\s+([0]|[1-9]+[0-9]*)\\s+([0]|[1-9]+[0-9]*)");
 
     public static void main(String[] args) {
@@ -24,8 +24,10 @@ public class ElevatorSystemApp {
         System.out.println("Elevator system simulation");
         System.out.println("Enter number of elevators [1 - 16]: ");
 
-        int numberOfElevators = Integer.parseInt(scanner.nextLine());
+        int numberOfElevators = scanner.nextInt();
         IElevatorSystem IElevatorSystem = new MyElevatorSystem(numberOfElevators);
+
+        scanner.nextLine();
 
         printHelp();
 
@@ -51,9 +53,9 @@ public class ElevatorSystemApp {
     public static void printHelp() {
         String help = """
                 help -> shows commands list
-                pickup [currentFloor (0 - 256)] [direction ( > 0 => up; < 0 => down)] [destinationFloor (0 - 256)] ->
+                pickup [currentFloor (0 - 255)] [direction ( > 0 => up; < 0 => down)] [destinationFloor (0 - 255)] ->
                     sends request for the elevator to the elevator system
-                update [elevatorId (0 - 15)] [currentFloor (0 - 256)] [destinationFloor (0 - 256)] ->
+                update [elevatorId (0 - 15)] [currentFloor (0 - 255)] [destinationFloor (0 - 255)] ->
                     immediately updates status of elevator with chosen elevatorId
                 step -> performs one step of the simulation
                 status -> shows list of elevators with their status
