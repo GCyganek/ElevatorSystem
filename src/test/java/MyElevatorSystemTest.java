@@ -21,6 +21,9 @@ public class MyElevatorSystemTest {
     private final PickupRequest pickupRequestFrom2To3InElevator =
             new PickupRequest(2, Direction.UP, 3, true);
 
+    private final PickupRequest pickupRequestFrom3To0InElevator =
+            new PickupRequest(3, Direction.DOWN, 0, true);
+
     private final PickupRequest pickupRequestFrom3To1InElevator =
             new PickupRequest(3, Direction.DOWN, 1, true);
 
@@ -33,6 +36,19 @@ public class MyElevatorSystemTest {
     private final PickupRequest pickupRequestFrom4To5InElevator =
             new PickupRequest(4, Direction.UP, 5, true);
 
+
+    @Test
+    public void requestPickupToGroundFloor() {
+        Elevator elevator = systemWith1Elevator.getElevatorById(0);
+
+        systemWith1Elevator.pickup(3, -1, 0);
+        for (int steps = 0; steps < 3; steps ++) systemWith1Elevator.step();
+
+        assertEquals(3, elevator.getElevatorStatus().getCurrentFloor());
+
+        for (int steps = 0; steps < 3; steps ++) systemWith1Elevator.step();
+        assertEquals(0, elevator.getElevatorStatus().getCurrentFloor());
+    }
 
     @Test
     public void updateElevatorsAndMakeStepTest() {

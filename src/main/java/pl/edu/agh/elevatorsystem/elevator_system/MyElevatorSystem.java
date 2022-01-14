@@ -25,7 +25,7 @@ import static pl.edu.agh.elevatorsystem.util.Constants.*;
  */
 public class MyElevatorSystem implements IElevatorSystem {
 
-    int numberOfElevators;
+    private final int numberOfElevators;
     private final List<Elevator> elevators;
     private final List<PickupRequest> pendingPickups = new ArrayList<>();
 
@@ -34,11 +34,11 @@ public class MyElevatorSystem implements IElevatorSystem {
      * @param numberOfElevators - number of elevators that the elevator system is going to have [minimum 1, maximum 16]
      */
     public MyElevatorSystem(int numberOfElevators) {
-        assignNumberOfElevators(numberOfElevators);
+        this.numberOfElevators = assignNumberOfElevators(numberOfElevators);
         elevators = createElevators();
     }
 
-    private void assignNumberOfElevators(int numberOfElevators) {
+    private int assignNumberOfElevators(int numberOfElevators) {
         if (numberOfElevators > MAX_ELEVATORS) {
             System.out.println("This system is for 16 elevators maximum. Creating 16 elevators...\n");
             numberOfElevators = MAX_ELEVATORS;
@@ -47,7 +47,7 @@ public class MyElevatorSystem implements IElevatorSystem {
             numberOfElevators = MIN_ELEVATORS;
         }
 
-        this.numberOfElevators = numberOfElevators;
+        return numberOfElevators;
     }
 
     private List<Elevator> createElevators() {

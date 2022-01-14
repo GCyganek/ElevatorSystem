@@ -34,7 +34,7 @@ public class PickupRequest {
 
     public boolean validateRequestFloors(int minFloor, int maxFloor) {
         return currentFloor >= minFloor && currentFloor <= maxFloor
-                && destinationFloor > minFloor && destinationFloor <= maxFloor;
+                && destinationFloor >= minFloor && destinationFloor <= maxFloor;
     }
 
     public boolean validateRequestDirection() {
